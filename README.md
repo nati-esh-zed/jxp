@@ -5,14 +5,14 @@ active class expansion using mutation observers. #Javascript
 ## sample code
 
 ```JS
-jxp.observe();
-
 jxp.set({
     'theme-dark': 'bg-dark text-light',
     'theme-light': 'bg-light text-dark',
     'theme': '@theme-light',
     'panel': 'my-2 p-4 border shadow-sm rounded rounded-md',
 });
+
+jxp.observe();
 ```
 
 ```html
