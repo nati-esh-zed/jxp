@@ -15,7 +15,7 @@ JSCss.set({
 ```
 
 ```html
-<div class="jscss panel">
+<div class="jscss(panel)">
     <h3>hello world!</h3>
 </div>
 ```
