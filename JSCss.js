@@ -1,6 +1,6 @@
 
 /**
- * JSCss v1.0.0
+ * JSCss v1.1.3
  * 
  * Replaces registered classes actively using mutation observers. 
  * 
@@ -46,39 +46,35 @@ class JSCss
         return expanded_classes_;
     }
 
-    static _update_element(element)
+    static _update_element_paren(element)
     {
-        let pop_classes = new Map();
-        for(let j = 0; j < element.classList.length; j++)
+        for(let class_i of element.classList)
         {
-            let class_ = element.classList[j];
-            if(class_ != 'jscss' && JSCss.is_set(class_))
+            if(class_i.startsWith('jscss(') && class_i.endsWith(')'))
             {
-                let pop_classes_ = JSCss.get(class_);
-                pop_classes.set(class_, pop_classes_);
-            }
-        }
-        for(let [pop_key, pop_classes_] of pop_classes)
-        {
-            element.classList.remove(pop_key);
-            let exp_classes_ = JSCss._expand_refs(pop_classes_);
-            if(exp_classes_)
-            {
-                for(let class_ of exp_classes_)
+                let jscss_params  = class_i.substr(6, class_i.length - 7);
+                let jscss_classes = jscss_params.split(',');
+                for(let jscss_class of jscss_classes)
                 {
-                    element.classList.add(class_);
+                    if(JSCss.is_set(jscss_class))
+                    {
+                        let classes_     = JSCss.get(jscss_class);
+                        let exp_classes  = JSCss._expand_refs(classes_);
+                        for(let exp_class of exp_classes)
+                            element.classList.add(exp_class);
+                    }
                 }
+                element.classList.remove(class_i);
             }
         }
-        element.classList.remove('jscss');
     }
 
     static update()
     {
-        let all_elements = document.querySelectorAll('.jscss');
+        let all_elements = document.querySelectorAll('*');
         for(let element of all_elements) 
         {
-            JSCss._update_element(element)
+            JSCss._update_element_paren(element)
         }
     };
 
@@ -95,10 +91,7 @@ class JSCss
         {
             for(const mutation of mutationList) 
             {
-                if(mutation.target.classList.contains('jscss'))
-                {
-                    JSCss._update_element(mutation.target);
-                }
+                JSCss._update_element_paren(mutation.target);
             }
         };
         const observer = new MutationObserver(callback);
@@ -152,7 +145,11 @@ JSCss.set({
     'theme-light': 'bg-light text-dark',
     'theme-slate': 'bg-slate text-light',
     'theme': '@theme-light',
-    'panel': '@theme my-2 p-4 border shadow-sm rounded rounded-md',
+    'panel': 'my-2 p-4 border shadow-sm rounded rounded-md',
 });
+
+<div class="jscss(panel,theme)">
+    hello world!
+</div>
 
  */
