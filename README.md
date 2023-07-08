@@ -1,4 +1,4 @@
-# jxp
+# jxp v1.1.5
 
 active class expansion using mutation observers. #Javascript
 
