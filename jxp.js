@@ -1,6 +1,6 @@
 
 /**
- * jxp v1.1.5
+ * jxp v1.1.6
  * 
  * Replaces registered classes actively using mutation observers. 
  * 
@@ -56,7 +56,7 @@ class jxp
                 const keyword = 'jxp(';
                 if(class_i.startsWith('jxp(') && class_i.endsWith(')'))
                 {
-                    let jxp_params  = class_i.substr(keyword.length, class_i.length - keyword.length - 1);
+                    let jxp_params  = class_i.substring(keyword.length, class_i.length - 1);
                     let jxp_classes = jxp_params.split(',');
                     for(let jxp_class of jxp_classes)
                     {
