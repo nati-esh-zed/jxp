@@ -1,12 +1,13 @@
-# JSCss
-active class expansion using Javascript
+# jxp
+
+active class expansion using mutation observers. #Javascript
 
 ## sample code
 
 ```JS
-JSCss.observe();
+jxp.observe();
 
-JSCss.set({
+jxp.set({
     'theme-dark': 'bg-dark text-light',
     'theme-light': 'bg-light text-dark',
     'theme': '@theme-light',
@@ -15,7 +16,7 @@ JSCss.set({
 ```
 
 ```html
-<div class="jscss(panel,theme)">
+<div class="jxp(panel,theme)">
     <h3>hello world!</h3>
 </div>
 ```
