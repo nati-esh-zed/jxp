@@ -1,6 +1,6 @@
 
 /**
- * jxp v1.2.10
+ * jxp module v1.3.13
  * 
  * replacs registered classes actively using mutation observers. 
  * 
@@ -18,80 +18,110 @@
  * 
  */
 
-class jxp
+class JxpEventHandler extends Event
 {
-    static #class_map    = new Map();
-    static #space_regexp = /\s+/g;
-    static #observer     = null;
+    jxp = null;
 
-    static get_map()
+    constructor(type, options, jxp_)
     {
-        return jxp.#class_map;
+        super(type, options);
+        this.jxp = jxp_;
     }
 
-    static entries()
+    handleEvent(evt)
     {
-        return jxp.#class_map.entries();
+        if(this.jxp)
+            this.jxp.update(evt);
+    }
+};
+
+class Jxp
+{
+    #class_map     = new Map();
+    #space_regexp  = /\s+/g;
+    #observer      = null;
+    #event_handler = null;
+    #token         = 'jxp:';
+
+    get_map()
+    {
+        return this.#class_map;
     }
 
-    static keys()
+    entries()
     {
-        return jxp.#class_map.keys();
+        return this.#class_map.entries();
     }
 
-    static values()
+    keys()
     {
-        return jxp.#class_map.values();
+        return this.#class_map.keys();
     }
 
-    static update()
+    values()
+    {
+        return this.#class_map.values();
+    }
+
+    token()
+    {
+        return this.token;
+    }
+
+    update()
     {
         let all_elements = document.querySelectorAll('*');
         for(let element of all_elements) 
         {
-            jxp.#update_element(element)
+            this.#update_element(element)
         }
     };
 
-    static update_on_load()
+    update_on_load()
     {
-        document.addEventListener('DOMContentLoaded', jxp.update);
+        if(!this.#event_handler)
+        {
+            this.#event_handler = new JxpEventHandler(null, null, this);
+            document.addEventListener('DOMContentLoaded', this.#event_handler);
+        }
     }
 
-    static observe()
+    observe()
     {
-        if(!jxp.#observer)
+        if(!this.#observer)
         {
             const config = { 
                     attributes: true,
                     attributeFilter: ['class'], 
                     childList: true, 
-                    subtree: true };
+                    subtree: true 
+            };
             const callback = function(mutation_list, observer) 
             {
                 for(const mutation of mutation_list) 
                 {
-                    jxp.#update_element_recursive(mutation.target);
+                    observer.jxp.#update_element_recursive(mutation.target);
                 }
             };
-            jxp.observer = new MutationObserver(callback);
-            jxp.observer.observe(document, config);
+            this.observer     = new MutationObserver(callback);
+            this.observer.jxp = this;
+            this.observer.observe(document, config);
         }
     };
 
-    static remove(key_class, class_)
+    remove(key_class, class_)
     {
         if(typeof(key_class) == 'string')
         {
             if(!class_)
             {
-                return jxp.#class_map.delete(key_class);
+                return this.#class_map.delete(key_class);
             }
             else if(typeof(class_) == 'string')
             {
-                if(jxp.#class_map.has(key_class))
+                if(this.#class_map.has(key_class))
                 {
-                    let classes_ = jxp.#class_map.get(key_class);
+                    let classes_ = this.#class_map.get(key_class);
                     let new_classes_ = Array();
                     let found = false;
                     for(let class_i in classes_)
@@ -103,7 +133,7 @@ class jxp
                         }
                     }
                     if(found)
-                        jxp.#class_map.set(key_class, new_classes_);
+                        this.#class_map.set(key_class, new_classes_);
                     return found;
                 }
             }
@@ -115,15 +145,15 @@ class jxp
         return false;
     }
 
-    static replace(key_class, old_class, new_class)
+    replace(key_class, old_class, new_class)
     {
         if(typeof(key_class) == 'string' 
         && typeof(old_class) == 'string'
         && typeof(new_class) == 'string')
         {
-            if(jxp.#class_map.has(key_class))
+            if(this.#class_map.has(key_class))
             {
-                let classes_ = jxp.#class_map.get(key_class);
+                let classes_ = this.#class_map.get(key_class);
                 let i        = classes_.indexOf(old_class);
                 if(i != -1)
                 {
@@ -137,19 +167,19 @@ class jxp
         return false;
     }
 
-    static set(key_class, classes)
+    set(key_class, classes)
     {
         if(typeof(key_class) == 'string')
         {
             if(typeof(classes) == 'string')
             {
-                classes = classes.replaceAll(jxp.#space_regexp, ' ');
+                classes = classes.replaceAll(this.#space_regexp, ' ');
                 classes = classes.trim();
                 if(classes.length > 0)
                 {
                     let classes_ = classes.split(' ');
-                    let exp_classes_ = jxp.#expand_refs(classes_);
-                    jxp.#class_map.set(key_class, exp_classes_);
+                    let exp_classes_ = this.#expand_refs(classes_);
+                    this.#class_map.set(key_class, exp_classes_);
                 }
             }
             else if(classes instanceof Array)
@@ -168,8 +198,8 @@ class jxp
                     else 
                         throw 'invalid type. expecting array of strings or string';
                 }
-                let exp_classes_ = jxp.#expand_refs(classes);
-                jxp.#class_map.set(key_class, exp_classes_);
+                let exp_classes_ = this.#expand_refs(classes);
+                this.#class_map.set(key_class, exp_classes_);
             }
             else 
                 throw 'invalid type. expecting array of strings or string for parameter classes';
@@ -182,7 +212,7 @@ class jxp
                 let classes_ = value;
                 if(typeof(classes_) == 'string')
                 {
-                    classes_ = classes_.replaceAll(jxp.#space_regexp, ' ');
+                    classes_ = classes_.replaceAll(this.#space_regexp, ' ');
                     classes_ = classes_.trim();
                     if(classes_.length > 0)
                         classes_ = classes_.split(' ');
@@ -203,41 +233,41 @@ class jxp
                 }
                 else 
                     throw 'invalid type. expecting array of strings or string';
-                let exp_classes_ = jxp.#expand_refs(classes_);
-                jxp.#class_map.set(key, exp_classes_);
+                let exp_classes_ = this.#expand_refs(classes_);
+                this.#class_map.set(key, exp_classes_);
             }
         }
         else 
             throw 'invalid type. expecting string or object for argumnent key_class';
     }
 
-    static get(key_class)
+    get(key_class)
     {
-        return jxp.#class_map.get(key_class);
+        return this.#class_map.get(key_class);
     }
 
-    static is_set(key_class, class_)
+    is_set(key_class, class_)
     {
         if(!class_)
-            return jxp.#class_map.has(key_class);
+            return this.#class_map.has(key_class);
         else
         {
-            if(!jxp.#class_map.has(key_class))
+            if(!this.#class_map.has(key_class))
                 return false;
-            const classes_ = jxp.#class_map.get(key_class);
+            const classes_ = this.#class_map.get(key_class);
             return classes_.indexOf(class_) != -1;
         }
     }
 
-    static #expand_refs(classes)
+    #expand_refs(classes)
     {
         let expanded_classes_ = new Array();
         for(let class_ of classes)
         {
             if(class_.charAt(0) == '@')
             {
-                let ref_key     = class_.substr(1);
-                let ref_classes = jxp.get(ref_key);
+                let ref_key     = class_.substring(1, class_.length);
+                let ref_classes = this.get(ref_key);
                 if(ref_classes)
                 {
                     for(let ref_class of ref_classes)
@@ -258,23 +288,23 @@ class jxp
         return expanded_classes_;
     }
 
-    static #update_element(element)
+    #update_element(element)
     {
         if(element)
         {
             for(let class_i of element.classList)
             {
-                const keyword = 'jxp(';
-                if(class_i.startsWith('jxp(') && class_i.endsWith(')'))
+                const keyword = this.#token;
+                if(class_i.startsWith(this.#token))
                 {
-                    let jxp_params  = class_i.substring(keyword.length, class_i.length - 1);
+                    let jxp_params  = class_i.substring(keyword.length, class_i.length);
                     let jxp_classes = jxp_params.split(',');
                     for(let jxp_class of jxp_classes)
                     {
-                        if(jxp.is_set(jxp_class))
+                        if(this.is_set(jxp_class))
                         {
-                            let classes_     = jxp.get(jxp_class);
-                            let exp_classes  = jxp.#expand_refs(classes_);
+                            let classes_     = this.get(jxp_class);
+                            let exp_classes  = this.#expand_refs(classes_);
                             for(let exp_class of exp_classes)
                                 element.classList.add(exp_class);
                         }
@@ -285,21 +315,25 @@ class jxp
         }
     }
 
-    static #update_element_recursive(element)
+    #update_element_recursive(element)
     {
         if(element)
         {
-            jxp.#update_element(element);
+            this.#update_element(element);
             for(let child of element.children)
             {
-                jxp.#update_element_recursive(child);
+                this.#update_element_recursive(child);
             }
         }
     }
 
 };
 
+export default Jxp;
+
 /*
+
+let jxp = new Jxp();
 
 jxp.set({
     'theme-dark': 'bg-dark text-light',
@@ -308,9 +342,10 @@ jxp.set({
     'theme': '@theme-light',
     'panel': 'my-2 p-4 border shadow-sm rounded rounded-md',
 });
+
 jxp.observe();
 
-<div class="jxp(panel,theme)">
+<div class="jxp:panel,theme">
     hello world!
 </div>
 

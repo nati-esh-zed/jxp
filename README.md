@@ -1,10 +1,12 @@
-# jxp v1.2.10
+# jxp v1.3.13
 
 active class expansion using mutation observers. #Javascript
 
 ## sample code
 
 ```JS
+let jxp = new Jxp();
+
 jxp.set({
     'theme-dark': 'bg-dark text-light',
     'theme-light': 'bg-light text-dark',
@@ -16,7 +18,7 @@ jxp.observe();
 ```
 
 ```html
-<div class="jxp(panel,theme)">
+<div class="jxp:panel,theme">
     <h3>hello world!</h3>
 </div>
 ```
