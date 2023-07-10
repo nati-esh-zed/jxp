@@ -1,8 +1,8 @@
 
 /**
- * jxp v1.1.7
+ * jxp v1.1.8
  * 
- * Replaces registered classes actively using mutation observers. 
+ * replacs registered classes actively using mutation observers. 
  * 
  * jxp.update()
  * jxp.update_on_load()
@@ -15,8 +15,9 @@
 
 class jxp
 {
-    static _class_map = new Map();
-    static _observer = null;
+    static _class_map    = new Map();
+    static _space_regexp = new RegExp('/\s+/', 'g');
+    static _observer     = null;
 
     static _expand_refs(classes)
     {
@@ -105,11 +106,10 @@ class jxp
         if(!jxp._observer)
         {
             const config = { 
-                attributes: true,
-                attributeFilter: ['class'], 
-                childList: true, 
-                subtree: true 
-            };
+                    attributes: true,
+                    attributeFilter: ['class'], 
+                    childList: true, 
+                    subtree: true };
             const callback = function(mutation_list, observer) 
             {
                 for(const mutation of mutation_list) 
@@ -126,12 +126,31 @@ class jxp
     {
         if(typeof(classes) == 'string')
         {
-            let classes_ = classes.split(' ');
-            let exp_classes_ = jxp._expand_refs(classes_);
-            jxp._class_map.set(key_class, exp_classes_);
+            classes = classes.replaceAll(jxp._space_regexp, ' ');
+            classes = classes.trim();
+            if(classes.length > 0)
+            {
+                let classes_ = classes.split(' ');
+                let exp_classes_ = jxp._expand_refs(classes_);
+                jxp._class_map.set(key_class, exp_classes_);
+            }
         }
         else if(classes instanceof Array)
         {
+            for(let class_ of classes)
+            {
+                if(typeof(class_) == 'string')
+                {
+                    if(class_.length > 0)
+                    {
+                        class_ = class_.trim();
+                        if(class_.indexOf(' ') != -1)
+                            throw 'unexpected space in class array element';
+                    }
+                }
+                else 
+                    throw 'invalid type. expecting array of strings or string';
+            }
             let exp_classes_ = jxp._expand_refs(classes);
             jxp._class_map.set(key_class, exp_classes_);
         }
@@ -142,11 +161,34 @@ class jxp
             {
                 let classes_ = value;
                 if(typeof(classes_) == 'string')
-                    classes_ = classes_.split(' ');
+                {
+                    classes_ = classes_.replaceAll(jxp._space_regexp, ' ');
+                    classes_ = classes_.trim();
+                    if(classes_.length > 0)
+                        classes_ = classes_.split(' ');
+                }
+                else if(classes_ instanceof Array)
+                {
+                    for(let class_ of classes_)
+                    {
+                        if(typeof(class_) == 'string')
+                        {
+                            class_ = class_.trim();
+                            if(class_.indexOf(' ') != -1)
+                                throw 'unexpected space in class array element';
+                        }
+                        else 
+                            throw 'invalid type. expecting array of strings or string';
+                    }
+                }
+                else 
+                    throw 'invalid type. expecting array of strings or string';
                 let exp_classes_ = jxp._expand_refs(classes_);
                 jxp._class_map.set(key, exp_classes_);
             }
         }
+        else 
+            throw 'invalid type. expecting array of strings or string';
     }
 
     static get(key_class)
