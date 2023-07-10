@@ -16,7 +16,7 @@
 class jxp
 {
     static _class_map    = new Map();
-    static _space_regexp = new RegExp('/\s+/', 'g');
+    static _space_regexp = /\s+/g;
     static _observer     = null;
 
     static _expand_refs(classes)
@@ -124,35 +124,40 @@ class jxp
 
     static set(key_class, classes)
     {
-        if(typeof(classes) == 'string')
+        if(typeof(key_class) == 'string')
         {
-            classes = classes.replaceAll(jxp._space_regexp, ' ');
-            classes = classes.trim();
-            if(classes.length > 0)
+            if(typeof(classes) == 'string')
             {
-                let classes_ = classes.split(' ');
-                let exp_classes_ = jxp._expand_refs(classes_);
+                classes = classes.replaceAll(jxp._space_regexp, ' ');
+                classes = classes.trim();
+                if(classes.length > 0)
+                {
+                    let classes_ = classes.split(' ');
+                    let exp_classes_ = jxp._expand_refs(classes_);
+                    jxp._class_map.set(key_class, exp_classes_);
+                }
+            }
+            else if(classes instanceof Array)
+            {
+                for(let class_ of classes)
+                {
+                    if(typeof(class_) == 'string')
+                    {
+                        if(class_.length > 0)
+                        {
+                            class_ = class_.trim();
+                            if(class_.indexOf(' ') != -1)
+                                throw 'unexpected space in class array element';
+                        }
+                    }
+                    else 
+                        throw 'invalid type. expecting array of strings or string';
+                }
+                let exp_classes_ = jxp._expand_refs(classes);
                 jxp._class_map.set(key_class, exp_classes_);
             }
-        }
-        else if(classes instanceof Array)
-        {
-            for(let class_ of classes)
-            {
-                if(typeof(class_) == 'string')
-                {
-                    if(class_.length > 0)
-                    {
-                        class_ = class_.trim();
-                        if(class_.indexOf(' ') != -1)
-                            throw 'unexpected space in class array element';
-                    }
-                }
-                else 
-                    throw 'invalid type. expecting array of strings or string';
-            }
-            let exp_classes_ = jxp._expand_refs(classes);
-            jxp._class_map.set(key_class, exp_classes_);
+            else 
+                throw 'invalid type. expecting array of strings or string for parameter classes';
         }
         else if(key_class instanceof Object)
         {
@@ -188,7 +193,7 @@ class jxp
             }
         }
         else 
-            throw 'invalid type. expecting array of strings or string';
+            throw 'invalid type. expecting string or object for argumnent key_class';
     }
 
     static get(key_class)
