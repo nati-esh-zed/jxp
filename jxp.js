@@ -1,6 +1,6 @@
 
 /**
- * jxp v1.1.6
+ * jxp v1.1.7
  * 
  * Replaces registered classes actively using mutation observers. 
  * 
@@ -105,10 +105,11 @@ class jxp
         if(!jxp._observer)
         {
             const config = { 
-                    attributes: true,
-                    attributeFilter: ['class'], 
-                    childList: true, 
-                    subtree: true };
+                attributes: true,
+                attributeFilter: ['class'], 
+                childList: true, 
+                subtree: true 
+            };
             const callback = function(mutation_list, observer) 
             {
                 for(const mutation of mutation_list) 
@@ -127,34 +128,35 @@ class jxp
         {
             let classes_ = classes.split(' ');
             let exp_classes_ = jxp._expand_refs(classes_);
-            jxp_classes[key_class] = exp_classes_;
+            jxp._class_map.set(key_class, exp_classes_);
         }
         else if(classes instanceof Array)
         {
             let exp_classes_ = jxp._expand_refs(classes);
-            this._class_map.set(key_class, exp_classes_);
+            jxp._class_map.set(key_class, exp_classes_);
         }
         else if(key_class instanceof Object)
         {
-            let keys = Object.keys(key_class);
-            for(let i = 0; i < keys.length; i++)
+            let entries = Object.entries(key_class);
+            for(let [key, value] of entries)
             {
-                let key = keys[i];
-                let classes_ = key_class[key].split(' ');
+                let classes_ = value;
+                if(typeof(classes_) == 'string')
+                    classes_ = classes_.split(' ');
                 let exp_classes_ = jxp._expand_refs(classes_);
-                this._class_map.set(key, exp_classes_);
+                jxp._class_map.set(key, exp_classes_);
             }
         }
     }
 
     static get(key_class)
     {
-        return this._class_map.get(key_class);
+        return jxp._class_map.get(key_class);
     }
 
     static is_set(key_class)
     {
-        return this._class_map.has(key_class);
+        return jxp._class_map.has(key_class);
     }
 
 };
