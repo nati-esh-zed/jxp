@@ -1,4 +1,4 @@
-# jxp v1.1.6
+# jxp v1.1.9
 
 active class expansion using mutation observers. #Javascript
 
@@ -8,10 +8,10 @@ active class expansion using mutation observers. #Javascript
 jxp.set({
     'theme-dark': 'bg-dark text-light',
     'theme-light': 'bg-light text-dark',
-    'theme': '@theme-light',
-    'panel': 'my-2 p-4 border shadow-sm rounded rounded-md',
 });
-
+jxp.set('theme', '@theme-dark');
+jxp.set('panel', 'my-2 p-4 border shadow-sm rounded rounded-md');
+jxp.set('panel', ['my-2', 'p-4', 'border', 'shadow-sm', 'rounded', 'rounded-md']); // same as above
 jxp.observe();
 ```
 
