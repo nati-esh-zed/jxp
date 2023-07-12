@@ -1,6 +1,6 @@
 
 /**
- * jxp script v1.3.13
+ * jxp script v1.4.14
  * 
  * replacs registered classes actively using mutation observers. 
  * 
@@ -42,6 +42,19 @@ class Jxp
     #observer      = null;
     #event_handler = null;
     #token         = 'jxp:';
+
+    constructor(token_)
+    {
+        if(token_)
+        {
+            if(typeof(token_) == 'string')
+            {
+                this.#token = token_ + ':';
+            }
+            else
+                throw 'Jxp constructor parameter token_ must be of type string.';
+        }
+    }
 
     get_map()
     {
@@ -294,22 +307,25 @@ class Jxp
         {
             for(let class_i of element.classList)
             {
-                const keyword = this.#token;
-                if(class_i.startsWith(this.#token))
+                if(class_i.length > 0)
                 {
-                    let jxp_params  = class_i.substring(keyword.length, class_i.length);
-                    let jxp_classes = jxp_params.split(',');
-                    for(let jxp_class of jxp_classes)
+                    const keyword = this.#token;
+                    if(class_i.startsWith(this.#token))
                     {
-                        if(this.is_set(jxp_class))
+                        let jxp_params  = class_i.substring(keyword.length, class_i.length);
+                        let jxp_classes = jxp_params.split(',');
+                        for(let jxp_class of jxp_classes)
                         {
-                            let classes_     = this.get(jxp_class);
-                            let exp_classes  = this.#expand_refs(classes_);
-                            for(let exp_class of exp_classes)
-                                element.classList.add(exp_class);
+                            if(this.is_set(jxp_class))
+                            {
+                                let classes_     = this.get(jxp_class);
+                                let exp_classes  = this.#expand_refs(classes_);
+                                for(let exp_class of exp_classes)
+                                    element.classList.add(exp_class);
+                            }
                         }
+                        element.classList.remove(class_i);
                     }
-                    element.classList.remove(class_i);
                 }
             }
         }
