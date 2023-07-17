@@ -1,20 +1,25 @@
 
 /**
- * jxp script v1.4.14
+ * Jxp script v1.5.15
  * 
- * replacs registered classes actively using mutation observers. 
+ * replaces registered classes actively using mutation observers. 
  * 
- * jxp.entries()
- * jxp.keys()
- * jxp.values()
- * jxp.update()
- * jxp.update_on_load()
- * jxp.observe()
- * jxp.remove(key_class, class_)
- * jxp.replace(key_class, old_class, new_class)
- * jxp.set(key_class, classes)
- * jxp.get(key_class)
- * jxp.is_set(key_class, class_)
+ * Jxp.get_map()
+ * Jxp.entries()
+ * Jxp.keys()
+ * Jxp.values()
+ * Jxp.token()
+ * Jxp.observer()
+ * Jxp.observing()
+ * Jxp.update(even_if_observing)
+ * Jxp.update_on_load()
+ * Jxp.observe()
+ * Jxp.stop()
+ * Jxp.remove(key_class, class_)
+ * Jxp.replace(key_class, old_class, new_class)
+ * Jxp.set(key_class, classes)
+ * Jxp.get(key_class)
+ * Jxp.is_set(key_class, class_)
  * 
  */
 
@@ -81,12 +86,25 @@ class Jxp
         return this.token;
     }
 
-    update()
+    observer()
     {
-        let all_elements = document.querySelectorAll('*');
-        for(let element of all_elements) 
+        return this.#observer;
+    }
+
+    observing()
+    {
+        return !!this.#observer;
+    }
+
+    update(even_if_observing)
+    {
+        if(!!even_if_observing || !this.#observer)
         {
-            this.#update_element(element)
+            let all_elements = document.querySelectorAll('*');
+            for(let element of all_elements) 
+            {
+                this.#update_element(element)
+            }
         }
     };
 
@@ -121,6 +139,11 @@ class Jxp
             this.observer.observe(document, config);
         }
     };
+
+    stop()
+    {
+        this.observer.disconnect();
+    }
 
     remove(key_class, class_)
     {
@@ -344,23 +367,3 @@ class Jxp
     }
 
 };
-
-/*
-
-let jxp = new Jxp();
-
-jxp.set({
-    'theme-dark': 'bg-dark text-light',
-    'theme-light': 'bg-light text-dark',
-    'theme-slate': 'bg-slate text-light',
-    'theme': '@theme-light',
-    'panel': 'my-2 p-4 border shadow-sm rounded rounded-md',
-});
-
-jxp.observe();
-
-<div class="jxp:panel,theme">
-    hello world!
-</div>
-
- */

@@ -1,4 +1,4 @@
-# jxp v1.4.14
+# jxp v1.5.15
 
 active class expansion using mutation observers. #Javascript
 
@@ -30,3 +30,23 @@ is processed to become:
     <h3>hello world!</h3>
 </div>
 ```
+
+## methods
+
+
+- `Jxp.get_map()` 
+- `Jxp.entries()` 
+- `Jxp.keys()` 
+- `Jxp.values()` 
+- `Jxp.token()` 
+- `Jxp.observer()` 
+- `Jxp.observing()` 
+- `Jxp.update(even_if_observing)` 
+- `Jxp.update_on_load()` 
+- `Jxp.observe()` 
+- `Jxp.stop()` 
+- `Jxp.remove(key_class, class_)` 
+- `Jxp.replace(key_class, old_class, new_class)` 
+- `Jxp.set(key_class, classes)` 
+- `Jxp.get(key_class)` 
+- `Jxp.is_set(key_class, class_)` 
