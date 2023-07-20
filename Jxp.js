@@ -1,6 +1,6 @@
 
 /**
- * Jxp script v1.5.15
+ * Jxp script v1.5.17
  * 
  * replaces registered classes actively using mutation observers. 
  * 
@@ -52,12 +52,9 @@ class Jxp
     {
         if(token_)
         {
-            if(typeof(token_) == 'string')
-            {
-                this.#token = token_ + ':';
-            }
-            else
-                throw 'Jxp constructor parameter token_ must be of type string.';
+            if(typeof(token_) != 'string')
+                throw TypeError('Jxp constructor parameter `token_` must be of type `string`.');
+            this.#token = token_ + ':';
         }
     }
 
@@ -174,10 +171,10 @@ class Jxp
                 }
             }
             else 
-                throw 'invalid type. expecting string for argumnent class';
+                throw TypeError('invalid type. expecting string for argumnent class');
         }
         else 
-            throw 'invalid type. expecting string for argumnent key_class';
+            throw TypeError('invalid type. expecting string for argumnent key_class');
         return false;
     }
 
@@ -199,7 +196,7 @@ class Jxp
             }
         }
         else 
-            throw 'invalid type. expecting string for argumnent key_class';
+            throw TypeError('invalid type. expecting string for argumnent key_class');
         return false;
     }
 
@@ -228,17 +225,17 @@ class Jxp
                         {
                             class_ = class_.trim();
                             if(class_.indexOf(' ') != -1)
-                                throw 'unexpected space in class array element';
+                                throw SyntaxError('unexpected space in class array element');
                         }
                     }
                     else 
-                        throw 'invalid type. expecting array of strings or string';
+                        throw TypeError('invalid type. expecting array of strings or string');
                 }
                 let exp_classes_ = this.#expand_refs(classes);
                 this.#class_map.set(key_class, exp_classes_);
             }
             else 
-                throw 'invalid type. expecting array of strings or string for parameter classes';
+                throw TypeError('invalid type. expecting array of strings or string for parameter classes');
         }
         else if(key_class instanceof Object)
         {
@@ -261,20 +258,20 @@ class Jxp
                         {
                             class_ = class_.trim();
                             if(class_.indexOf(' ') != -1)
-                                throw 'unexpected space in class array element';
+                                throw SyntaxError('unexpected space in class array element');
                         }
                         else 
-                            throw 'invalid type. expecting array of strings or string';
+                            throw TypeError('invalid type. expecting array of strings or string');
                     }
                 }
                 else 
-                    throw 'invalid type. expecting array of strings or string';
+                    throw TypeError('invalid type. expecting array of strings or string');
                 let exp_classes_ = this.#expand_refs(classes_);
                 this.#class_map.set(key, exp_classes_);
             }
         }
         else 
-            throw 'invalid type. expecting string or object for argumnent key_class';
+            throw TypeError('invalid type. expecting string or object for argumnent key_class');
     }
 
     get(key_class)
