@@ -1,6 +1,6 @@
 
 /**
- * Jxp module v1.5.17
+ * Jxp module v1.5.19
  * 
  * replaces registered classes actively using mutation observers. 
  * 
@@ -131,15 +131,19 @@ export class Jxp
                     observer.jxp.#update_element_recursive(mutation.target);
                 }
             };
-            this.observer     = new MutationObserver(callback);
-            this.observer.jxp = this;
-            this.observer.observe(document, config);
+            this.#observer     = new MutationObserver(callback);
+            this.#observer.jxp = this;
+            this.#observer.observe(document, config);
         }
     };
 
     stop()
     {
-        this.observer.disconnect();
+        if(!!this.#observer)
+        {
+            this.#observer.disconnect();
+            this.#observer = null;
+        }
     }
 
     remove(key_class, class_)
